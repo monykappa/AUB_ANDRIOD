@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-const val PRODUCT_BASE_URL = "http://192.168.93.238:3000/"
+const val PRODUCT_BASE_URL = "http://172.16.100.62:3000/"
 
 
 
