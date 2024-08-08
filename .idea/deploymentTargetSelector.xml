@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="Movie_App.app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-07-02T12:07:04.356406400Z">
+        <DropdownSelection timestamp="2024-08-08T02:37:38.985217300Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\mony\.android\avd\Pixel_6_Pro_API_35.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=R5CT42LK0FE" />
             </handle>
           </Target>
         </DropdownSelection>

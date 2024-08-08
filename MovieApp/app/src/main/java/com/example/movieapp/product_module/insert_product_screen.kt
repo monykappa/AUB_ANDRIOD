@@ -17,14 +17,195 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import android.widget.Toast
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material.icons.filled.PriceChange
 import androidx.compose.material.icons.filled.TextFields
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InsertProductScaffold(nc: NavController, vm: ProductAPIViewModel) {
+    LaunchedEffect(Unit) { vm.getProductList() }
+    Scaffold(topBar = {
+        TopAppBar(
+            title = { Text("Insert Product Screen") },
+            navigationIcon = {
+                IconButton(onClick = {
+                    nc.popBackStack()
+                }) {
+                    Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
+                }
+            }
+        )
+
+    }) {
+        Box(
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize()
+
+            ,
+            contentAlignment = Alignment.Center
+        ) {
+            InsertProductScreen(nc, vm)
+        }
+    }
+}
+
+
+@Composable
+fun InsertProductScreen(nc: NavController, vm: ProductAPIViewModel) {
+    var title by remember { mutableStateOf("") }
+    var body by remember { mutableStateOf("") }
+    var price by remember { mutableStateOf("0.0") }
+    var qty by remember { mutableStateOf("0") }
+    var imageUrl by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("") }
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        Column(
+            modifier = Modifier.padding(10.dp),
+        ) {
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
+                value = title,
+                onValueChange = { title = it },
+                label = { Text("Title") },
+                placeholder = { Text("Enter Title") },
+                leadingIcon = {
+                    Icon(Icons.Default.TextFields, contentDescription = null)
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                )
+            )
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)
+                    .height(100.dp),
+                value = body,
+                onValueChange = { body = it },
+                label = { Text("Body") },
+                placeholder = { Text("Enter Body") },
+                leadingIcon = {
+                    Icon(Icons.Default.Book, contentDescription = null)
+                },
+                maxLines = 5,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                )
+            )
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
+                value = price,
+                onValueChange = { price = it },
+                label = { Text("Price") },
+                placeholder = { Text("Enter Price") },
+                leadingIcon = {
+                    Icon(Icons.Default.PriceChange, contentDescription = null)
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                )
+            )
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
+                value = qty,
+                onValueChange = { qty = it },
+                label = { Text("Qty") },
+                placeholder = { Text("Enter Qty") },
+                leadingIcon = {
+                    Icon(Icons.Default.Numbers, contentDescription = null)
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                )
+            )
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
+                value = category,
+                onValueChange = { category = it },
+                label = { Text("Category") },
+                placeholder = { Text("Enter category") },
+                leadingIcon = {
+                    Icon(Icons.Default.Category, contentDescription = null)
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                )
+            )
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)
+                    .height(100.dp),
+                value = imageUrl,
+                onValueChange = { imageUrl = it },
+                label = { Text("Image Url") },
+                placeholder = { Text("Enter image Url") },
+                leadingIcon = {
+                    Icon(Icons.Default.Image, contentDescription = null)
+                },
+                maxLines = 5,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                )
+            )
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
+                onClick = {
+                    val product = Product(
+                        title = title,
+                        body = body,
+                        price = price,
+                        qty = qty,
+                        image = imageUrl,
+                        category = category,
+                    )
+                    vm.insertProduct(product)
+                },
+            ) {
+                Text("INSERT PRODUCT")
+            }
+
+            if (vm.isLoading) {
+                CircularProgressIndicator()
+            }
+
+            if (vm.successMessage.isNotEmpty()) {
+                Text(vm.successMessage, color = Color.Blue)
+            }
+
+            if (vm.errorMessage.isNotEmpty()) {
+                Text(vm.errorMessage, color = Color.Red)
+            }
+        }
+    }
+
+}
 
 @Composable
 fun SampleLoginUI(){
@@ -43,7 +224,9 @@ fun SampleLoginUI(){
             modifier = Modifier.padding(10.dp),
         ) {
             TextField(
-                modifier = Modifier.fillMaxWidth().padding(5.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Email") },
@@ -56,7 +239,9 @@ fun SampleLoginUI(){
                 )
             )
             TextField(
-                modifier = Modifier.fillMaxWidth().padding(5.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Password") },
@@ -83,7 +268,9 @@ fun SampleLoginUI(){
                 }
             )
             Button(
-                modifier = Modifier.fillMaxWidth().padding(5.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
                 onClick = {
                     if (email == "kosal" && password == "123") {
                         Toast.makeText(
@@ -104,120 +291,4 @@ fun SampleLoginUI(){
             }
         }
     }
-}
-
-
-@Preview(showSystemUi = true)
-@Composable
-fun InsertProductScreen(){
-
-    var title by remember { mutableStateOf("") }
-    var body by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
-    var qty by remember { mutableStateOf("") }
-    var imageUrl by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("") }
-
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.TopCenter,
-    ){
-        Column(
-            modifier = Modifier.padding(10.dp),
-        ){
-            TextField(
-                modifier = Modifier.fillMaxWidth().padding(5.dp),
-                value = title,
-                onValueChange = { title = it },
-                label = { Text(text = "Title") },
-                placeholder = { Text(text = "Enter Title") },
-                leadingIcon = {
-                    Icon(Icons.Default.TextFields, contentDescription = null)
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                )
-            )
-            TextField(
-                modifier = Modifier.fillMaxWidth().padding(5.dp).height(100.dp),
-                value = body,
-                onValueChange = { body = it },
-                label = { Text(text = "Body") },
-                placeholder = { Text(text = "Enter Body") },
-                leadingIcon = {
-                    Icon(Icons.Default.Book, contentDescription = null)
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                )
-            )
-            TextField(
-                modifier = Modifier.fillMaxWidth().padding(5.dp),
-                value = price,
-                onValueChange = { price = it },
-                label = { Text( "Price") },
-                placeholder = { Text("Enter Price") },
-                leadingIcon = {
-                    Icon(Icons.Default.PriceChange, contentDescription = null)
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                )
-            )
-            TextField(
-                modifier = Modifier.fillMaxWidth().padding(5.dp),
-                value = qty,
-                onValueChange = { title = qty },
-                label = { Text( "Qty") },
-                placeholder = { Text("Enter Qty") },
-                leadingIcon = {
-                    Icon(Icons.Default.Numbers, contentDescription = null)
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                )
-            )
-            TextField(
-                modifier = Modifier.fillMaxWidth().padding(5.dp),
-                value = category,
-                onValueChange = { category = it },
-                label = { Text( "Category") },
-                placeholder = { Text("Enter Category") },
-                leadingIcon = {
-                    Icon(Icons.Default.Category, contentDescription = null)
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                )
-            )
-            TextField(
-                modifier = Modifier.fillMaxWidth().padding(5.dp),
-                value = imageUrl,
-                onValueChange = { imageUrl = it },
-                label = { Text( "Image Url") },
-                placeholder = { Text("Enter Image Url") },
-                leadingIcon = {
-                    Icon(Icons.Default.Image, contentDescription = null)
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                )
-            )
-
-            Button(
-                modifier = Modifier.fillMaxWidth().padding(5.dp),
-                onClick = {
-
-                }
-
-            ){
-                Text("Insert Product")
-            }
-
-
-        }
-    }
-
-
-
 }

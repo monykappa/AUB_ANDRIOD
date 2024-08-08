@@ -24,101 +24,126 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.ui.draw.clip
+import androidx.navigation.NavController
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductScaffold(vm: ProductViewModel) {
-    LaunchedEffect(Unit) {
-        vm.getProductList() // Call getProductList() inside a coroutine scope
-    }
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "Product Screen") },
-                actions = {
-                    IconButton(onClick = {
-                        // Optionally, you can call getProductList() directly here as well
-                        // vm.getProductList()
-                    }) {
-                        Icon(
-                            Icons.Default.Refresh,
-                            contentDescription = "Refresh"
-                        )
-                    }
+fun ProductScaffold(navController: NavController, vm: ProductAPIViewModel) {
+    LaunchedEffect(Unit) { vm.getProductList() }
+    Scaffold(topBar = {
+        TopAppBar(
+            title = { Text("Product Screen") },
+            actions = {
+                IconButton(onClick = {
+                    vm.getProductList(results = 5)
+                }) {
+                    Text("5")
                 }
-            )
-        }
-    ) { paddingValues ->
+                IconButton(onClick = {
+                    vm.getProductList(results = 25)
+                }) {
+                    Text("25")
+                }
+                IconButton(onClick = {
+                    navController.navigate("insert")
+                }) {
+                    Icon(Icons.Default.Add, contentDescription = "Add")
+                }
+            }
+        )
+    }) {
         Box(
             modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize(),
+                .padding(it)
+                .fillMaxSize()
+
+            ,
             contentAlignment = Alignment.Center
         ) {
-            ProductBody(vm)
+            ProductBody(vm, navController)
         }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ProductBody(vm: ProductViewModel) {
-    when {
-        vm.isLoading -> {
-            CircularProgressIndicator()
-        }
-        vm.errorMessage.isNotEmpty() -> {
-            Text(vm.errorMessage)
-        }
-        else -> {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(150.dp),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(8.dp)
-            ) {
-                items(vm.productList) { product ->
-                    ProductItem(product)
-                }
+fun ProductBody(vm: ProductAPIViewModel, navController: NavController) {
+    if (vm.isLoading) {
+        CircularProgressIndicator()
+    } else if (vm.errorMessage.isNotEmpty()) {
+        Text(vm.errorMessage)
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(vm.productList.size) {
+                ProductItem(vm.productList[it], vm, navController)
             }
         }
     }
 }
-
 @Composable
-fun ProductItem(item: Product) {
-    Column(
-        modifier = Modifier
-            .padding(8.dp)
-            .background(Color.White)
-            .border(1.dp, Color.LightGray)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+fun ProductItem(item: Product, vm: ProductAPIViewModel, navController: NavController) {
+    Card(
+        modifier = Modifier.padding(5.dp),
     ) {
-        Surface(
+        Row(
             modifier = Modifier
-                .size(120.dp)
-                .background(Color.White)
-
+                .fillMaxWidth()
+                .padding(5.dp),
+            horizontalArrangement = Arrangement.Start, // Align items to start
+            verticalAlignment = Alignment.CenterVertically // Center vertically
         ) {
-            val imageUrl = "${item.image}"  // Assuming PRODUCT_BASE_URL is correctly defined
-            val painter = rememberImagePainter(
-                data = imageUrl,
-                builder = {
-                    crossfade(true)  // Enable crossfade animation
+            // Load and display the product image on the left
+            item.image?.let {
+                val painter = rememberImagePainter(it)
+                Image(
+                    painter = painter,
+                    contentDescription = "Product Image",
+                    modifier = Modifier
+                        .size(100.dp) // Adjust the size as needed
+                        .padding(end = 10.dp) // Space between image and text
+                )
+            }
+
+            // Text content on the right
+            Column(
+                modifier = Modifier
+                    .weight(1f) // Take up the remaining space
+                    .padding(10.dp)
+            ) {
+                Text("${item.title}", modifier = Modifier.padding(bottom = 4.dp))
+                Text("${item.price}", modifier = Modifier.padding(bottom = 4.dp))
+                Text("${item.category}", modifier = Modifier.padding(bottom = 4.dp))
+
+                if (vm.isLoading) {
+                    CircularProgressIndicator()
                 }
-            )
-            Image(
-                painter = painter,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-            )
+
+                if (vm.errorMessage.isNotEmpty()) {
+                    Text(vm.errorMessage, color = Color.Red)
+                }
+            }
+
+            // Action buttons (edit and delete) on the right side
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = {
+                    navController.navigate("edit/${item.id}")
+                }) {
+                    Icon(Icons.Default.Edit, contentDescription = "Edit")
+                }
+                IconButton(onClick = {
+                    vm.deleteProduct(item.id)
+                }) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                }
+            }
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = item.title)
-        Text(text = "$${item.price}")
-        Text(text = item.category)
-        Spacer(modifier = Modifier.height(20.dp))
     }
 }
