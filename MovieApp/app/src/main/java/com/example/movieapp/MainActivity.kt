@@ -14,34 +14,37 @@ import com.example.movieapp.product_module.InsertProductScreen
 import com.example.movieapp.product_module.ProductAPIViewModel
 import com.example.movieapp.product_module.ProductEditScreen
 import com.example.movieapp.product_module.ProductScaffold
+import com.example.movieapp.themoviedb_module.MovieApp
+import com.example.movieapp.themoviedb_module.TheMovieViewModel
 
 
-    class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setContent {
-                val vm = ProductAPIViewModel()
-                val nc = rememberNavController()
-                NavHost(navController = nc, startDestination = "home"){
-                    composable("home"){
-                        ProductScaffold(nc, vm)
-                    }
-                    composable("insert"){
-                        InsertProductScaffold(nc, vm)
-                    }
-                    composable(
-                        "edit/{productId}",
-                        arguments = listOf(navArgument("productId") { type = NavType.StringType })
-                    ) { backStackEntry ->
-                        val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
-                        val viewModel: ProductAPIViewModel = viewModel()
-                        ProductEditScreen(
-                            viewModel = viewModel,
-                            productId = productId,
-                            onNavigateBack = { nc.popBackStack() }
-                        )
-                    }
-                }
+                val vm = TheMovieViewModel()
+                MovieApp(vm)
+//                val nc = rememberNavController()
+//                NavHost(navController = nc, startDestination = "home"){
+//                    composable("home"){
+//                        ProductScaffold(nc, vm)
+//                    }
+//                    composable("insert"){
+//                        InsertProductScaffold(nc, vm)
+//                    }
+//                    composable(
+//                        "edit/{productId}",
+//                        arguments = listOf(navArgument("productId") { type = NavType.StringType })
+//                    ) { backStackEntry ->
+//                        val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
+//                        val viewModel: ProductAPIViewModel = viewModel()
+//                        ProductEditScreen(
+//                            viewModel = viewModel,
+//                            productId = productId,
+//                            onNavigateBack = { nc.popBackStack() }
+//                        )
+//                    }
+//                }
             }
         }
     }
